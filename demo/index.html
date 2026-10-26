@@ -1,0 +1,111 @@
+<!doctype html>
+<!--
+  DEMO PAGE WITH DELIBERATE ACCESSIBILITY PROBLEMS. Do not copy these patterns.
+
+  Problems axe-core WILL find (rule id in brackets):
+    V1  <html> has no lang attribute                        [html-has-lang]
+    V2  Logo image has no alt text                          [image-alt]
+    V3  Icon-only search button has no accessible name      [button-name]
+    V4  Icon-only help link has no accessible name          [link-name]
+    V5  Email field's caption is not a real <label>         [label]
+    V6  Light grey "fine print" text fails contrast         [color-contrast]
+    V7  Hidden newsletter panel: <select> with no label     [select-name]
+        (only appears AFTER clicking "Show newsletter options")
+
+  Problems axe-core will NOT find (needs a human):
+    H1  "Sign up" is a clickable <div>: no keyboard focus, no button role
+    H2  Team photo alt text ("photo") exists but is meaningless
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Acme Widgets – Sign up</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 0; color: #1a1a1a; background: #fff; }
+      header { display: flex; align-items: center; gap: 1rem; padding: 1rem 2rem; border-bottom: 1px solid #ddd; }
+      header nav { margin-left: auto; display: flex; gap: .5rem; }
+      main { max-width: 40rem; padding: 1rem 2rem 3rem; }
+      .icon-btn { background: none; border: 1px solid #555; border-radius: 4px; padding: .4rem; line-height: 0; cursor: pointer; color: #1a1a1a; }
+      label, .field-caption, input, select { display: block; margin-top: .5rem; font-size: 1rem; }
+      input, select { padding: .4rem; border: 1px solid #555; border-radius: 4px; }
+      .fine-print { color: #b8b8b8; font-size: .85rem; } /* V6: ~2:1 contrast on white */
+      .fake-button { display: inline-block; margin-top: 1rem; padding: .6rem 1.2rem; background: #1f4fbf; color: #fff; border-radius: 4px; cursor: pointer; }
+      .real-button { margin-top: 1rem; padding: .5rem 1rem; font-size: 1rem; background: #fff; color: #1f4fbf; border: 2px solid #1f4fbf; border-radius: 4px; cursor: pointer; }
+      #about { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #ddd; }
+      #status { margin-top: 1rem; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <!-- V2: missing alt -->
+      <img src="/logo.svg" width="40" height="40" />
+      <strong>Acme Widgets</strong>
+      <nav>
+        <!-- V3: icon-only button, no accessible name -->
+        <button class="icon-btn" type="button">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" fill="none"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+        <!-- V4: icon-only link, no accessible name -->
+        <a class="icon-btn" href="#help">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" fill="none"/><text x="10" y="14" font-size="11" text-anchor="middle" fill="currentColor">?</text></svg>
+        </a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Create your account</h1>
+
+      <form id="signup" onsubmit="return false">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" autocomplete="name" />
+
+        <!-- V5: the text looks like a label, but it is a <span>, so it is not tied to the input -->
+        <span class="field-caption">Email address</span>
+        <input id="email" name="email" type="email" />
+
+        <p class="fine-print">By signing up you agree to our terms and privacy policy.</p>
+
+        <!-- H1: looks like a button, but keyboard users cannot reach or activate it. axe does not flag this. -->
+        <div class="fake-button" onclick="document.getElementById('status').textContent = 'Thanks for signing up!'">Sign up</div>
+        <p id="status" role="status"></p>
+      </form>
+
+      <button id="toggle-newsletter" class="real-button" type="button" aria-expanded="false" aria-controls="newsletter">
+        Show newsletter options
+      </button>
+      <div id="newsletter" hidden>
+        <p>How often would you like to hear from us?</p>
+        <!-- V7: select with no label (only scanned once the panel is visible) -->
+        <select id="frequency" name="frequency">
+          <option>Weekly</option>
+          <option>Monthly</option>
+        </select>
+      </div>
+
+      <!-- This section is intentionally clean: a scoped scan of #about should report zero violations. -->
+      <section id="about" aria-labelledby="about-heading">
+        <h2 id="about-heading">About us</h2>
+        <!-- H2: alt text exists, so axe is satisfied, but "photo" tells a screen reader user nothing -->
+        <img src="/logo.svg" alt="photo" width="64" height="64" />
+        <p>We make widgets that are easy for everyone to use.</p>
+        <ul>
+          <li>Free shipping on orders over $50</li>
+          <li>30-day returns</li>
+        </ul>
+        <p><a href="#contact">Contact our support team</a></p>
+      </section>
+    </main>
+
+    <script>
+      const toggle = document.getElementById('toggle-newsletter');
+      const panel = document.getElementById('newsletter');
+      toggle.addEventListener('click', () => {
+        const open = panel.hidden;
+        panel.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.textContent = open ? 'Hide newsletter options' : 'Show newsletter options';
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "a11y-playwright-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hands-on sample: accessibility testing with Playwright and axe-core",
+  "scripts": {
+    "serve": "node demo/server.mjs",
+    "setup:browsers": "playwright install chromium",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^22.10.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

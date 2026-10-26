@@ -1,0 +1,27 @@
+# Example CI job: runs the accessibility suite on every pull request.
+# Adapt to [our CI system] if we are not on GitHub Actions.
+name: Accessibility tests
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  a11y:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
